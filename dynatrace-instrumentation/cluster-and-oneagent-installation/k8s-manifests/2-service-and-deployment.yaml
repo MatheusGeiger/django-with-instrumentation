@@ -1,0 +1,138 @@
+apiVersion: v1
+kind: Service
+metadata:
+  namespace: dynatrace-test
+  name: django-template-service
+spec:
+  selector:
+    app: django-template-deployment
+  type: NodePort
+  ports:
+    - name: http
+      protocol: TCP
+      # See `kind-config.yaml` to understand why I configured port 32000!
+      nodePort: 32000
+      port: 8080
+      targetPort: http
+
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: django-template-pika-deployment-consumer
+  namespace: dynatrace-test
+  labels:
+    app: django-template-pika-deployment-consumer
+    project: cross
+    bu: cross
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: django-template-pika-deployment-consumer
+  template:
+    metadata:
+      labels:
+        app: django-template-pika-deployment-consumer
+    spec:
+      containers:
+        - name: django-template-pika-app-deployment-consumer
+          imagePullPolicy: IfNotPresent
+          image: dynatrace-instrumentation-app:latest
+          command: ["python", "manage.py", "pika_consumer"]
+          resources:
+            requests:
+              cpu: 50m
+              memory: 128Mi
+          envFrom:
+            - configMapRef:
+                name: django-template-configmap
+            - secretRef:
+                name: django-template-secret
+
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: django-template-deployment-consumer
+  namespace: dynatrace-test
+  labels:
+    app: django-template-deployment-consumer
+    project: cross
+    bu: cross
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: django-template-deployment-consumer
+  template:
+    metadata:
+      labels:
+        app: django-template-deployment-consumer
+    spec:
+      containers:
+        - name: django-template-deployment-consumer-app
+          imagePullPolicy: IfNotPresent
+          image: dynatrace-instrumentation-app:latest
+          command: ["./scripts/consumers/start-create-audit-action-consumer.sh"]
+          resources:
+            requests:
+              cpu: 50m
+              memory: 128Mi
+          envFrom:
+            - configMapRef:
+                name: django-template-configmap
+            - secretRef:
+                name: django-template-secret
+
+---
+
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: django-template-deployment
+  namespace: dynatrace-test
+  labels:
+    app: django-template-deployment
+    project: cross
+    bu: cross
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: django-template-deployment
+  template:
+    metadata:
+      labels:
+        app: django-template-deployment
+    spec:
+      containers:
+        - name: django-template-deployment
+          image: dynatrace-instrumentation-app:latest
+          imagePullPolicy: IfNotPresent
+          command: ["./scripts/start-production.sh"]
+          ports:
+            - name: http
+              containerPort: 8080
+          livenessProbe:
+            httpGet:
+              path: /healthcheck/liveness
+              port: 8080
+            initialDelaySeconds: 40
+            periodSeconds: 20
+            timeoutSeconds: 5
+          readinessProbe:
+            httpGet:
+              path: /healthcheck/readiness
+              port: 8080
+            initialDelaySeconds: 60
+            periodSeconds: 10
+          resources:
+            requests:
+              cpu: 50m
+              memory: 250Mi
+          envFrom:
+            - configMapRef:
+                name: django-template-configmap
+            - secretRef:
+                name: django-template-secret

@@ -1,0 +1,199 @@
+version: "3.9"
+
+# https://docs.docker.com/compose/compose-file/compose-file-v3/#extension-fields
+x-build: &dockerfile-dev-build
+  context: .
+  dockerfile: Dockerfile.dev
+
+services:
+  db:
+    image: postgres:12-alpine
+    environment:
+      - POSTGRES_PASSWORD=postgres
+      - POSTGRES_USER=postgres
+    ports:
+      - 5432:5432
+    networks:
+      - djangotemplate
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  rabbitmq:
+    image: rabbitmq:3-management
+    ports:
+      - 15672:15672
+    volumes:
+      - ./tests/resources/custom-rabbitmq-conf:/etc/rabbitmq/
+    networks:
+      - djangotemplate
+    healthcheck:
+      test: rabbitmq-diagnostics -q ping
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  app:
+    build: *dockerfile-dev-build
+    env_file: .env
+    volumes:
+      - .:/app
+    ports:
+      - "${DJANGO_BIND_PORT}:${DJANGO_BIND_PORT}"
+    depends_on:
+      db:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
+    command:
+      [
+        "./scripts/start-development.sh",
+      ]
+    networks:
+      - djangotemplate
+
+  app-telemetry:
+    build: *dockerfile-dev-build
+    env_file: .env
+    volumes:
+      - .:/app
+    ports:
+      - "${DJANGO_BIND_PORT}:${DJANGO_BIND_PORT}"
+      - "8000:8000"
+    depends_on:
+      db:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
+      otel-collector:
+        condition: service_started
+      opentelemetry-jaeger:
+        condition: service_started
+    command:
+      [
+        "./scripts/start-development-with-opentelemetry.sh",
+      ]
+    networks:
+      - djangotemplate
+
+  app-pubsub:
+    build: *dockerfile-dev-build
+    env_file: .env
+    volumes:
+      - .:/app
+    depends_on:
+      db:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
+      otel-collector:
+        condition: service_started
+      opentelemetry-jaeger:
+        condition: service_started
+    command:
+      [
+        "./scripts/consumers/start-create-audit-action-consumer.sh",
+      ]
+    networks:
+      - djangotemplate
+
+  app-pubsub-pika:
+    build: *dockerfile-dev-build
+    env_file: .env
+    volumes:
+      - .:/app
+    depends_on:
+      db:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
+      otel-collector:
+        condition: service_started
+      opentelemetry-jaeger:
+        condition: service_started
+    command:
+      [
+        "./scripts/consumers/start-create-audit-action-consumer-pika.sh",
+      ]
+    networks:
+      - djangotemplate
+
+  app-production:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    env_file: .env
+    volumes:
+      - .:/app
+    ports:
+      - "${DJANGO_BIND_PORT}:${DJANGO_BIND_PORT}"
+    depends_on:
+      db:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
+      otel-collector:
+        condition: service_started
+      opentelemetry-jaeger:
+        condition: service_started
+    command:
+      [
+        "./scripts/start-production.sh",
+      ]
+    networks:
+      - djangotemplate
+
+  integration-tests:
+    build: *dockerfile-dev-build
+    env_file: .env
+    volumes:
+      - .:/app
+    ports:
+      - "${DJANGO_BIND_PORT}:${DJANGO_BIND_PORT}"
+    depends_on:
+      db:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
+    command:
+      [
+        "./scripts/start-tests.sh",
+      ]
+    networks:
+      - djangotemplate
+  lint-formatter:
+    build: *dockerfile-dev-build
+    volumes:
+      - .:/app
+    command: ["./scripts/start-formatter-lint.sh"]
+    networks:
+      - djangotemplate
+
+  opentelemetry-jaeger:
+    container_name: opentelemetry-jaeger
+    image: jaegertracing/all-in-one
+    ports:
+      - "16686:16686"
+      - "14250"
+      - "6831:6831"
+    environment:
+      - COLLECTOR_OTLP_ENABLED=True
+    networks:
+      - djangotemplate
+
+  otel-collector:
+    container_name: otel-collector
+    image: otel/opentelemetry-collector-contrib
+    command: ["--config=/etc/otel-collector-config.yml"]
+    volumes:
+      - ./django_template/opentelemetry/collector-config.yaml:/etc/otel-collector-config.yml
+    ports:
+      - "4317:4317"
+      - "4318:4318"
+    networks:
+      - djangotemplate
+
+networks:
+  djangotemplate:

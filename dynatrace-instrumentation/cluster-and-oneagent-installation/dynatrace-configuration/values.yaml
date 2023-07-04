@@ -1,0 +1,7 @@
+platform: "kubernetes"
+installCRD: true
+webhook:
+  highAvailability: false # https://github.com/Dynatrace/dynatrace-operator/blob/1b1f6a69fb506bee90e27e51755cfb14f069c3b5/config/helm/chart/default/templates/Common/webhook/deployment-webhook.yaml#L52
+
+securityContextConstraints:
+  enabled: false # Only applicable for Openshift

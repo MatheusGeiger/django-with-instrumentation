@@ -1,0 +1,51 @@
+receivers:
+  otlp:
+    protocols:
+      grpc:
+      http:
+        cors:
+          allowed_origins:
+          - http://*
+          - https://*
+
+exporters:
+  jaeger:
+    endpoint: "opentelemetry-jaeger:14250"
+    tls:
+      insecure: true
+
+  otlphttp:
+    endpoint: https://<LIVE_ENVIROMENT_DYNATRACE>.live.dynatrace.com/api/v2/otlp
+    headers:
+      authorization: "Api-Token <DYNATRACE_TOKEN>"
+
+  dynatrace:
+    endpoint: https://<LIVE_ENVIROMENT_DYNATRACE>.live.dynatrace.com
+    api_token: "<DYNATRACE_TOKEN>"
+    resource_to_telemetry_conversion:
+      enabled: true
+
+  logging:
+    verbosity: detailed
+
+processors:
+  batch:
+#    # Batch size must be less than or equal to 1000
+#    send_batch_max_size: 1000
+#    send_batch_size: 2
+#    timeout: 30s
+
+
+service:
+  telemetry:
+    logs:
+      level: "debug"
+  pipelines:
+    traces:
+      receivers: [otlp]
+      processors: [batch]
+      exporters: [jaeger, otlphttp]
+    metrics:
+      receivers: [otlp]
+      processors: [batch]
+      exporters: [dynatrace]

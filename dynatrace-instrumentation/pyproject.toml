@@ -1,0 +1,91 @@
+[tool.poetry]
+name = "django_template"
+version = "0.1.0"
+description = "Template Django project for JS+ back-end applications"
+authors = ["Juntos Somos Mais <labs@juntossomosmais.com.br>"]
+
+[[tool.poetry.source]]
+name = 'test_pypi'
+url  = 'https://test.pypi.org/simple/'
+secondary = true
+
+[tool.poetry.dependencies]
+python = "^3.11"
+django = "4.1.9"
+djangorestframework = "^3"
+psycopg2-binary = "^2"
+### Infrastructure
+django-health-check = "^3"
+django-cors-headers = "^3"
+drf-link-navigation-pagination = "*"
+### WSGI
+gunicorn = "^20"
+gevent = "^22"
+### Logging
+request-id-django-log = "^0"
+python-json-logger = "^2"
+### Tooling
+requests = "^2"
+http-utils = "^0.1.3"
+### Helpers and so on
+drf-spectacular = "^0.25.1"
+django-stomp = "^5.0.0"
+### Opentelemetry
+autodynatrace = "1.1.1"
+django-outbox-pattern = "^0.13.0"
+pika = "^1.3.2"
+ndg-httpsclient = "^0.5.1"
+pyopenssl = "^23.2.0"
+pyasn1 = "^0.5.0"
+
+
+[tool.poetry.dev-dependencies]
+### Pytest: Essentials
+pytest = "^7"
+pytest-mock = "^3"
+pytest-django = "^4"
+pytest-cov = "^3"
+pytest-env = "^0"
+pytest-xdist = "*"
+### Pytest: Add-ons
+pytest-icdiff = "^0"
+pytest-clarity = "^1"
+### Format, lint, static type checker, among others
+black = "*"
+mypy = "^0"
+isort = "*"
+flake8 = "*"
+flake8-bugbear = "*"
+autoflake = "^1"
+pre-commit = "^2"
+types-requests = "*"
+#### Helpers and so on
+django-debug-toolbar = "^3"
+django-stomp-debug-callback = "^1.0.0"
+
+[tool.black]
+line-length = 120
+target_version = ["py311"]
+include = '\.pyi?$'
+exclude = '''
+(
+  /(
+      \.eggs
+    | \.git
+    | \.hg
+    | \.mypy_cache
+    | \.tox
+    | \.venv
+    | _build
+    | buck-out
+    | build
+    | dist
+    | migrations
+    | settings.py
+  )/
+)
+'''
+
+[build-system]
+requires = ["poetry-core>=1.0.0"]
+build-backend = "poetry.core.masonry.api"
