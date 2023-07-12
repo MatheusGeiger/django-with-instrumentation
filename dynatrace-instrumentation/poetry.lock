@@ -34,13 +34,13 @@ tests-no-zope = ["cloudpickle", "hypothesis", "mypy (>=1.1.1)", "pympler", "pyte
 
 [[package]]
 name = "autodynatrace"
-version = "1.1.1"
+version = "2.0.0"
 description = "Auto instrumentation for the OneAgent SDK"
 optional = false
-python-versions = ">=2.7,!=3.0.*,!=3.1.*,!=3.2.*,!=3.3.*"
+python-versions = ">=3.6"
 files = [
-    {file = "autodynatrace-1.1.1-py2.py3-none-any.whl", hash = "sha256:e1b01bed885c79384d833d6f6d29ae47132aa9194114ed0b121d1c236802443d"},
-    {file = "autodynatrace-1.1.1.tar.gz", hash = "sha256:cb645dbbf4689959f1af399073a4fb48ac7e3341e968ef290e5e1546768e8295"},
+    {file = "autodynatrace-2.0.0-py2.py3-none-any.whl", hash = "sha256:0fb3e823f8183d985f59f12ca7c4430db7cd60cfa6301fece31d792ab157c89a"},
+    {file = "autodynatrace-2.0.0.tar.gz", hash = "sha256:b503e7c46c67c316a2986f83b96692870d82ac7c9d28df001ea62f7cff9a41a2"},
 ]
 
 [package.dependencies]
@@ -1994,4 +1994,4 @@ testing = ["coverage (>=5.0.3)", "zope.event", "zope.testing"]
 [metadata]
 lock-version = "2.0"
 python-versions = "^3.11"
-content-hash = "f0b54c58fd6d9182b79cdec2a6ecccb5386a6986e57640af2846c89f0d2e1db6"
+content-hash = "51a80d5dbe6c94c9d6f007dcd3ea853cf1708e8fc8178436789c82f32f0c1c0b"
