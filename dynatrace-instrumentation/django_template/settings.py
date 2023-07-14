@@ -62,6 +62,7 @@ THIRD_PARTY_APPS = [
 LOCAL_APPS: List[str] = [
     "django_template.apps.example",
     "django_template.apps.pika",
+    "django_template.apps.dynatrace"
 ]
 
 INSTALLED_APPS = DJANGO_APPS + LOCAL_APPS + THIRD_PARTY_APPS

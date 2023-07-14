@@ -3,15 +3,6 @@
 import os
 import sys
 
-from django_template.apps.dynatrace import instrument_consumer
-from django_template.apps.dynatrace import instrument_log
-from django_template.apps.dynatrace import instrument_publisher
-
-instrument_publisher()
-instrument_consumer()
-instrument_log()
-
-
 def main():
     os.environ.setdefault("DJANGO_SETTINGS_MODULE", "django_template.settings")
     try:
