@@ -39,7 +39,7 @@ spec:
         - name: django-template-pika-app-deployment-consumer
           imagePullPolicy: IfNotPresent
           image: dynatrace-instrumentation-app:latest
-          command: ["python", "manage.py", "pika_consumer"]
+          command: [ "python", "manage.py", "pika_consumer" ]
           resources:
             requests:
               cpu: 50m
@@ -74,7 +74,7 @@ spec:
         - name: django-template-deployment-consumer-app
           imagePullPolicy: IfNotPresent
           image: dynatrace-instrumentation-app:latest
-          command: ["./scripts/consumers/start-create-audit-action-consumer.sh"]
+          command: [ "./scripts/consumers/start-create-audit-action-consumer.sh" ]
           resources:
             requests:
               cpu: 50m
@@ -84,6 +84,10 @@ spec:
                 name: django-template-configmap
             - secretRef:
                 name: django-template-secret
+          env:
+            - name: AUTODYNATRACE_FORKABLE
+              value: "False"
+
 
 ---
 
@@ -97,7 +101,7 @@ metadata:
     project: cross
     bu: cross
 spec:
-  replicas: 1
+  replicas: 2
   selector:
     matchLabels:
       app: django-template-deployment
@@ -110,7 +114,7 @@ spec:
         - name: django-template-deployment
           image: dynatrace-instrumentation-app:latest
           imagePullPolicy: IfNotPresent
-          command: ["./scripts/start-production.sh"]
+          command: [ "./scripts/start-production.sh" ]
           ports:
             - name: http
               containerPort: 8080

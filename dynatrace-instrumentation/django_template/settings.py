@@ -1,5 +1,4 @@
 import os
-
 from distutils.util import strtobool
 from logging import Formatter
 from pathlib import Path
@@ -7,12 +6,10 @@ from typing import List
 from typing import Optional
 from typing import Union
 
+from django_template.support.django_helpers import eval_env_as_boolean
 from pythonjsonlogger.jsonlogger import JsonFormatter
 
-from django_template.support.django_helpers import eval_env_as_boolean
-
 BASE_DIR = Path(__file__).resolve().parent.parent
-
 
 # Quick-start development settings - unsuitable for production
 # https://docs.djangoproject.com/en/4.0/howto/deployment/checklist/
@@ -37,7 +34,6 @@ if CSRF_TRUSTED_ORIGINS := os.getenv("CSRF_TRUSTED_ORIGINS", ""):
 
 CSRF_COOKIE_SECURE = strtobool(os.getenv("CSRF_COOKIE_SECURE", "True"))
 SESSION_COOKIE_SECURE = strtobool(os.getenv("SESSION_COOKIE_SECURE", "True"))
-
 
 DJANGO_APPS = [
     "django.contrib.admin",
@@ -180,7 +176,6 @@ AUTH_PASSWORD_VALIDATORS = [
     },
 ]
 
-
 # Internationalization
 # https://docs.djangoproject.com/en/4.0/topics/i18n/
 LANGUAGE_CODE = "en-us"
@@ -188,7 +183,6 @@ TIME_ZONE = "UTC"
 USE_I18N = True
 USE_L10N = True
 USE_TZ = True
-
 
 # Logging
 # https://docs.djangoproject.com/en/4.0/topics/logging/
@@ -300,3 +294,5 @@ DJANGO_OUTBOX_PATTERN = {
 # Broker
 CREATE_AUDIT_ACTION_DESTINATION = os.getenv("CREATE_AUDIT_ACTION_DESTINATION", "/queue/create-audit-action")
 CREATE_AUDIT_ACTION_DESTINATION_2 = os.getenv("CREATE_AUDIT_ACTION_DESTINATION_2", "create-audit-action-2")
+
+ENDPOINT_TO_PING_USER_ID = os.getenv("ENDPOINT_TO_PING_USER_ID", "http://localhost:8000/api/v1/ping/")
